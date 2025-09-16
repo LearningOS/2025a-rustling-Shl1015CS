@@ -76,18 +76,17 @@ impl<T> myStack<T> {
         
         // 将 q1 中除了最后一个元素外的所有元素移到 q2
         while self.q1.size() > 1 {
-            if let Ok(elem) = self.q1.dequeue() {
-                self.q2.enqueue(elem);
-            }
+            let elem = self.q1.dequeue().unwrap(); // 我们已经检查过不为空
+            self.q2.enqueue(elem);
         }
         
         // 取出 q1 中的最后一个元素（栈顶元素）
-        let result = self.q1.dequeue();
+        let result = self.q1.dequeue().unwrap(); // q1 肯定有一个元素
         
         // 交换 q1 和 q2
         std::mem::swap(&mut self.q1, &mut self.q2);
         
-        result
+        Ok(result)
     }
     pub fn is_empty(&self) -> bool {
         self.q1.is_empty() && self.q2.is_empty()
