@@ -2,7 +2,6 @@
 	heap
 	This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
 
 use std::cmp::Ord;
 use std::default::Default;
@@ -37,7 +36,33 @@ where
     }
 
     pub fn add(&mut self, value: T) {
-        //TODO
+        self.count += 1;
+        self.items.push(value);
+        self.heapify_up(self.count);
+    }
+    
+    fn heapify_up(&mut self, idx: usize) {
+        if idx == 1 {
+            return;
+        }
+        
+        let parent_idx = self.parent_idx(idx);
+        if (self.comparator)(&self.items[idx], &self.items[parent_idx]) {
+            self.items.swap(idx, parent_idx);
+            self.heapify_up(parent_idx);
+        }
+    }
+    
+    fn heapify_down(&mut self, idx: usize) {
+        if !self.children_present(idx) {
+            return;
+        }
+        
+        let smallest_child_idx = self.smallest_child_idx(idx);
+        if (self.comparator)(&self.items[smallest_child_idx], &self.items[idx]) {
+            self.items.swap(idx, smallest_child_idx);
+            self.heapify_down(smallest_child_idx);
+        }
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
@@ -57,8 +82,20 @@ where
     }
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
-        //TODO
-		0
+        let left_idx = self.left_child_idx(idx);
+        let right_idx = self.right_child_idx(idx);
+        
+        if right_idx > self.count {
+            // 只有左子节点
+            left_idx
+        } else {
+            // 有两个子节点，选择较小的那个
+            if (self.comparator)(&self.items[left_idx], &self.items[right_idx]) {
+                left_idx
+            } else {
+                right_idx
+            }
+        }
     }
 }
 
@@ -84,8 +121,28 @@ where
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
-        //TODO
-		None
+        if self.count == 0 {
+            return None;
+        }
+        
+        // 保存根节点的值
+        let result = std::mem::replace(&mut self.items[1], T::default());
+        
+        if self.count == 1 {
+            self.count = 0;
+            self.items.pop();
+            return Some(result);
+        }
+        
+        // 将最后一个元素移到根节点
+        let last_item = self.items.pop().unwrap();
+        self.items[1] = last_item;
+        self.count -= 1;
+        
+        // 向下调整堆
+        self.heapify_down(1);
+        
+        Some(result)
     }
 }
 
